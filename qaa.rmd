@@ -1,0 +1,280 @@
+---
+title: "RNA-Seq Quality Assessment"
+author: "Sally Grindstaff"
+date: "9/5/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(readr)
+library(tidyverse)
+```
+
+**Part 1: Read quality score distributions**  
+  
+Plots of per-base quality scores and of per-base N content were generated using FASTQC version 0.11.5 as a module on Talapas, which was run by submitting the following script to Talapas' queuing system:
+
+```{bash, comment=NA}
+cat slurm/fastqc_run.sh
+```
+  
+All plots from FASTQC have been re-plotted in R using the data points from FASTQC, for formatting purposes.  
+  
+Per-base quality scores:  
+
+```{r, include = F}
+s1_r1_qscores = read_tsv('FASTQC/27_4C_R1_fastqc_data.txt', skip = 12, n_max = 55)
+s1_r2_qscores = read_tsv('FASTQC/27_4C_R2_fastqc_data.txt', skip = 12, n_max = 55)
+s2_r1_qscores = read_tsv('FASTQC/28_4D_R1_fastqc_data.txt', skip = 12, n_max = 55)
+s2_r2_qscores = read_tsv('FASTQC/28_4D_R2_fastqc_data.txt', skip = 12, n_max = 55)
+```
+
+
+```{r}
+base_levels = c(1:9,'10-11','12-13','14-15','16-17','18-19','20-21','22-23','24-25','26-27','28-29','30-31','32-33','34-35','36-37','38-39','40-41','42-43','44-45','46-47','48-49','50-51','52-53','54-55','56-57','58-59','60-61','62-63','64-65','66-67','68-69','70-71','72-73','74-75','76-77','78-79','80-81','82-83','84-85','86-87','88-89','90-91','92-93','94-95','96-97','98-99','100-101')
+
+ggplot(data = s1_r1_qscores, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `Mean`)) + geom_point() + labs(title = 'Per-Base Quality Scores in 27_4C_mbnl_S19_L008_R1_001.fastq', x = 'Base position', y = 'Mean Quality Score') + ylim(0,41) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s1_r2_qscores, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `Mean`)) + geom_point() + labs(title = 'Per-Base Quality Scores in 27_4C_mbnl_S19_L008_R2_001.fastq', x = 'Base position', y = 'Mean Quality Score') + ylim(0,41) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s2_r1_qscores, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `Mean`)) + geom_point() + labs(title = 'Per-Base Quality Scores in 28_4D_mbnl_S20_L008_R1_001.fastq', x = 'Base position', y = 'Mean Quality Score') + ylim(0,41) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s2_r2_qscores, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `Mean`)) + geom_point() + labs(title = 'Per-Base Quality Scores in 28_4D_mbnl_S20_L008_R2_001.fastq', x = 'Base position', y = 'Mean Quality Score') + ylim(0,41) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+
+  
+Per-base N content:  
+
+```{r, include = F}
+s1_r1_ncontent = read_tsv('FASTQC/27_4C_R1_fastqc_data.txt', skip = 6427, n_max = 55)
+s1_r2_ncontent = read_tsv('FASTQC/27_4C_R2_fastqc_data.txt', skip = 6427, n_max = 55)
+s2_r1_ncontent = read_tsv('FASTQC/28_4D_R1_fastqc_data.txt', skip = 6427, n_max = 55)
+s2_r2_ncontent = read_tsv('FASTQC/28_4D_R2_fastqc_data.txt', skip = 6427, n_max = 55)
+```
+
+
+```{r}
+
+ggplot(data = s1_r1_ncontent, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `N-Count`)) + geom_point() + labs(title = 'Per-Base N Content in 27_4C_mbnl_S19_L008_R1_001.fastq', x = 'Base position', y = 'Frequency of Ns (%)') + ylim(0,50) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s1_r2_ncontent, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `N-Count`)) + geom_point() + labs(title = 'Per-Base N Content in 27_4C_mbnl_S19_L008_R2_001.fastq', x = 'Base position', y = 'Frequency of Ns (%)') + ylim(0,50) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s2_r1_ncontent, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `N-Count`)) + geom_point() + labs(title = 'Per-Base N Content in 28_4D_mbnl_S20_L008_R1_001.fastq', x = 'Base position', y = 'Frequency of Ns (%)') + ylim(0,50) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s2_r2_ncontent, mapping = aes(x = factor(`#Base`, levels = base_levels), y = `N-Count`)) + geom_point() + labs(title = 'Per-Base N Content in 28_4D_mbnl_S20_L008_R2_001.fastq', x = 'Base position', y = 'Frequency of Ns (%)') + ylim(0,50) + theme(axis.text.x=element_text(angle = 90,vjust=0.3))
+```
+  
+For all 4 reads, the per-base N content is consistent with the per-base quality scores. Each quality score plot shows that the quality score starts lower and rises over the first 5 bases or so, after which it stabilizes. Each N content plots shows that the N content starts a little higher and then quickly drops down to around 0. So, both plots show that the N content and quality scores are slightly worse at the very beginning of the read. Also, the N content is very low for all 4 reads, and all 4 reads have decent quality scores (well above 35, and closer to 40 for the read 1 reads).  
+  
+I also produced per-base quality score plots directly from the FASTQs using my own Python script. The Python script, followed by its dependent module Bioinfo.py and the bash scripts used to run the program, are shown here:  
+
+Bioinfo.py module:
+
+```{bash, comment = NA}
+cat py/Bioinfo.py
+```
+  
+Python script:
+
+```{bash, comment = NA}
+cat py/qual_scores.py
+```
+  
+Scripts submitted to Talapas queue:
+
+```{bash, comment = NA}
+cat slurm/27_4C_R1_qscore_dist_run.sh
+```
+
+```{bash, comment = NA}
+cat slurm/27_4C_R2_qscore_dist_run.sh
+```
+
+```{bash, comment = NA}
+cat slurm/28_4D_R1_qscore_dist_run.sh
+```
+
+```{bash, comment = NA}
+cat slurm/28_4D_R2_qscore_dist_run.sh
+```
+  
+My per-base quality score plots:  
+![](my_qplots/27_4C_mbnl_S19_L008_R1_001_qscore_distribution.png)
+![](my_qplots/27_4C_mbnl_S19_L008_R2_001_qscore_distribution.png)
+![](my_qplots/28_4D_mbnl_S20_L008_R1_001_qscore_distribution.png)
+![](my_qplots/28_4D_mbnl_S20_L008_R2_001_qscore_distribution.png)
+  
+My quality score plots appear to match the quality score plots made with data produced by FASTQC. The only difference I can see is that my plots have more data points, because I calculated the mean quality score at each base position, while FASTQC calculated the mean across two bases at a time. This does not affect the overall shape of the quality score distributions.  
+  
+Overall, the data quality of both libraries looks sufficient for downstream analysis. N-content is low across both reads in both libraries, with only slightly raised values at the beginning of each read. Read 1 quality scores are near 40 across the bulk of the read for both libraries. Read 2 quality scores are slightly lower, closer to 38, but this is expected for libraries sequenced with Illumina, because the sequencing molecule degrades as it sits on the flow cell and is repeatedly washed with harsh chemicals during read 1. FASTQC flags k-mer content and duplication levels as being potential problems for these libraries, but I know that these are RNA-seq libraries and are therefore expected to have differing levels of expression across the genome and to have exact copies of the same transcript due to the overexpression of some transcripts.  
+  
+**Part 2: Adapter trimming comparison**  
+  
+Adapter sequences were trimmed using cutadapt version 3.4. The adapter sequences were identified by searching for Illumina TruSeq adapter sequences on Illumina's website, and adapter presence and orientation was confirmed using the following bash commands in an interactive session on Talapas:
+```{r}
+
+```
+  
+The following bash script was submitted to Talapas to run cutadapt:
+```{bash, comment=NA}
+cat slurm/cutadapt_run.sh
+```
+ 
+Cutadapt reports that for library 27_4C_mbnl_S19, 10.4% of read 1 reads were adapter-trimmed and 11.1% of read 2 reads were adapter-trimmed. For library 28_4D_mbnl_S20, 6.0% of read 1 reads were adapter-trimmed and 6.8% of read 2 reads were adapter-trimmed. This suggests that perhaps library 28_4D_mbnl_S20 had a fragment distribution shifted toward longer reads before sequencing.  
+
+Trimmomatic version 0.39 was used to quality-trim the reads and was run with the following script on Talapas:
+```{bash, comment=NA}
+cat slurm/trimmomatic_run.sh
+```
+  
+Trimmed read length distribution plots were generated by running FASTQC on the trimmed FASTQs and plotting the data in R. Only paired reads were used for this and all subsequent steps, meaning that the unpaired files output by Trimmomatic were not used.  
+Script submitted to Talapas to run FASTQC:
+```{bash, comment = NA}
+cat slurm/trimmed_fastqc_run.sh
+```
+
+
+```{r, include = F}
+s1_r1_trim_len = read_tsv('trimmed_fastqc/27_4C_R1_trimmed_fastqc_data.txt', skip = 6478, n_max = 34)
+colnames(s1_r1_trim_len) = c('Length','R1_Count')
+
+s1_r2_trim_len = read_tsv('trimmed_fastqc/27_4C_R2_trimmed_fastqc_data.txt', skip = 6480, n_max = 34)
+colnames(s1_r2_trim_len) = c('Length','R2_Count')
+
+s1_trim_len = inner_join(s1_r1_trim_len,s1_r2_trim_len)
+
+s2_r1_trim_len = read_tsv('trimmed_fastqc/28_4D_R1_trimmed_fastqc_data.txt', skip = 6477, n_max = 34)
+colnames(s2_r1_trim_len) = c('Length','R1_Count')
+
+s2_r2_trim_len = read_tsv('trimmed_fastqc/27_4C_R2_trimmed_fastqc_data.txt', skip = 6481, n_max = 34)
+colnames(s2_r2_trim_len) = c('Length','R2_Count')
+
+s2_trim_len = inner_join(s2_r1_trim_len,s2_r2_trim_len)
+```
+
+```{r}
+len_levels = c('34-35','36-37','38-39','40-41','42-43','44-45','46-47','48-49','50-51','52-53','54-55','56-57','58-59','60-61','62-63','64-65','66-67','68-69','70-71','72-73','74-75','76-77','78-79','80-81','82-83','84-85','86-87','88-89','90-91','92-93','94-95','96-97','98-99','100-101')
+
+ggplot(data = s1_trim_len, mapping = aes(x = factor(Length, levels = len_levels))) + geom_point(mapping = aes(y = R1_Count, color = 'R1_Count')) + geom_point(mapping = aes(y = R2_Count, color = 'R2_Count')) + labs(title = 'Length Distribution in 27_4C_mbnl_S19 Reads After Trimming', x = 'Length', y = 'Number of Reads') + theme(axis.text.x=element_text(size = 9, angle = 90,vjust=0.3))
+```
+<br><br><br>
+```{r}
+ggplot(data = s2_trim_len, mapping = aes(x = factor(Length, levels = len_levels))) + geom_point(mapping = aes(y = R1_Count, color = 'R1_Count')) + geom_point(mapping = aes(y = R2_Count, color = 'R2_Count')) + labs(title = 'Length Distribution in 28_4D_mbnl_S20 Reads After Trimming', x = 'Length', y = 'Number of Reads') + theme(axis.text.x=element_text(size = 9, angle = 90,vjust=0.3))
+
+```
+  
+From these plots, we can see that in both libraries read 2 is generally trimmed more often than read 1. We expect the adapter trimming rates to be about the same, since it is dependent on insert length and we expect read 1 and read 2 of the same read pair to have the same insert length. This is shown in the adapter-trimming rates reported by cutadapt, shown above. Therefore, the discrepancy between read 1 and read 2 trimming rates is due to a difference in quality trimming rates. This makes sense because read 2 tends to be of lower quality than read 1, due to the extra time sitting on the flow cell and enduring harsh washes during read 1. This is also reflected in the per-base quality scores, which we already saw to be lower in read 2. The discrepancy between read 1 and read 2 trimming rates is especially pronounced in the second library, 28_4D_mbnl_S20.  
+  
+**Part 3: Alignment and strand-specificity**  
+  
+A *Mus musculus* reference genome was generated from a FASTA file and a GTF file, both downloaded from Ensembl release 104. Both reference genome generation and alignment of the RNA-seq data to the reference database were performed using STAR version 2.7.9a. STAR was run by submitting scripts to Talapas' queuing system.  
+Genome generation script:
+```{bash, comment=NA}
+cat slurm/star_makedb_run.sh
+```
+  
+Alignment script:
+```{bash, comment=NA}
+cat slurm/star_align_run.sh
+```
+  
+From STAR's output SAM files, counts of mapped and unmapped reads were obtained by running the following Python script:
+```{bash, comment=NA}
+cat py/sam_mapping_counter.py
+```
+  
+The above Python script was run on Talapas with this wrapper script:
+```{bash, comment=NA}
+cat slurm/mapped_counts_run.sh
+```
+  
+For library 27_4C_mbnl_S19,  
+Number of mapped reads:  13320042  
+Number of unmapped reads:  433870  
+  
+  
+For library 28_4D_mbnl_S20,  
+Number of mapped reads:  22657659  
+Number of unmapped reads:  793147  
+  
+Before running HTSeq-Count, SAMTools version 1.13 was used to convert SAMs to BAMs, sort by name, and convert back to SAMs (as recommended by HTSeq-Count) with the following script:
+
+```{bash, comment=NA}
+cat slurm/sort_sam_run.sh
+```
+  
+Then HTSeq-Count version 0.13.5 was run twice per library (once with the stranded parameter set to no and once with the stranded parameter set to yes) with this script:
+
+```{bash, comment=NA}
+cat slurm/htseq_count_run.sh
+```
+  
+  
+```{r, include = F}
+s1_stranded_genecount = read_tsv('27_4C_mbnl_S19_L008.stranded.genecount')
+s1_unstranded_genecount = read_tsv('27_4C_mbnl_S19_L008.unstranded.genecount')
+s2_stranded_genecount = read_tsv('28_4D_mbnl_S20_L008.stranded.genecount')
+s2_unstranded_genecount = read_tsv('28_4D_mbnl_S20_L008.unstranded.genecount')
+```
+
+HTSeq-Count results:
+```{r}
+s1_stranded_genecount
+s1_unstranded_genecount
+s2_stranded_genecount
+s2_unstranded_genecount
+```
+
+  
+For each HTSeq-Count run, the number of reads mapping to features and the total number of reads were analyzed with the following bash script:
+
+```{bash, comment=NA}
+cat slurm/analyze_htseq_count_run.sh
+```
+
+27_4C_mbnl_S19_L008.stranded.genecount:  
+reads mapping to feature:  
+271747  
+total reads:  
+6876956  
+  
+27_4C_mbnl_S19_L008.unstranded.genecount:  
+reads mapping to feature:  
+5545724  
+total reads:  
+6876956  
+  
+28_4D_mbnl_S20_L008.stranded.genecount:  
+reads mapping to feature:  
+424716  
+total reads:  
+11725403  
+  
+28_4D_mbnl_S20_L008.unstranded.genecount:  
+reads mapping to feature:  
+9414809  
+total reads:  
+11725403  
+  
+Converting these numbers to percentages, we get:
+27_4C_mbnl_S19_L008, stranded -- `r 100*271747/6876956`% of reads mapping to features  
+27_4C_mbnl_S19_L008, unstranded -- `r 100*5545724/6876956`% of reads mapping to features  
+28_4D_mbnl_S20_L008, stranded -- `r 100*424716/11725403`% of reads mapping to features  
+28_4D_mbnl_S20_L008, unstranded -- `r 100*9414809/11725403`% of reads mapping to features  
+  
+From these data, I propose that the libraries were prepared using a stranded method. I believe this to be true because if the libraries were unstranded, then I would expect about half as many reads to map to features with the stranded parameter set to 'yes' than with the stranded parameter set to 'no'. This is because in an unstranded library reads 1 and 2 can both correspond to either the template or coding strand of the genome, so I would not expect a bias. However, in this case I see an order of magnitude difference (`r 100*271747/6876956`% vs. `r 100*5545724/6876956`% for the first library and `r 100*424716/11725403`% vs. `r 100*9414809/11725403`% for the second library) when I set the stranded parameter to yes vs. no in HTSeq-Count. This indicates that most of the mapping features are coming from one strand over the other, which leads me to believe that the libraries were prepared in a strand-specific manner.
