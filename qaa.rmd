@@ -3,8 +3,8 @@ title: "RNA-Seq Quality Assessment"
 author: "Sally Grindstaff"
 date: "9/5/2021"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -126,9 +126,85 @@ Overall, the data quality of both libraries looks sufficient for downstream anal
 **Part 2: Adapter trimming comparison**  
   
 Adapter sequences were trimmed using cutadapt version 3.4. The adapter sequences were identified by searching for Illumina TruSeq adapter sequences on Illumina's website, and adapter presence and orientation was confirmed using the following bash commands in an interactive session on Talapas:
-```{r}
+```{r, eval=F, echo=T}
+# check that read 1 adapter sequence is in read 1 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R1_001.fastq.gz | grep -c 
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+132794
+# check that read 2 adapter sequence is not in read 1 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R1_001.fastq.gz | grep -c 
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+0
+# check that read 1 adapter sequence is not in read 2 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R2_001.fastq.gz | grep -c 
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+0
+# check that read 2 adapter sequence is in read 2 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R2_001.fastq.gz | grep -c 
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+135250
+# check that reverse complement of read 1 adapter sequence is not in read 1 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R1_001.fastq.gz | grep -c 
+TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
+0
+# check that reverse complement of read 2 adapter sequence is not in read 1 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R1_001.fastq.gz | grep -c 
+ACACTCTTTCCCTACACGACGCTCTTCCGATCT
+0
+# check that reverse complement of read 1 adapter sequence is not in read 1 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R2_001.fastq.gz | grep -c 
+TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
+0
+# check that reverse complement of read 2 adapter sequence is not in read 2 file
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R2_001.fastq.gz | grep -c 
+ACACTCTTTCCCTACACGACGCTCTTCCGATCT
+0
+# perform all the same checks as above for the other library
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R1_001.fastq.gz | grep -c 
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+56758
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R1_001.fastq.gz | grep -c 
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+0
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R2_001.fastq.gz | grep -c 
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+0
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R2_001.fastq.gz | grep -c 
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+57626
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R1_001.fastq.gz | grep -c 
+TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
+0
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R1_001.fastq.gz | grep -c 
+ACACTCTTTCCCTACACGACGCTCTTCCGATCT
+0
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R2_001.fastq.gz | grep -c 
+TGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
+0
+(base) [sgrindst@n225 demultiplexed]$ zcat 28_4D_mbnl_S20_L008_R2_001.fastq.gz | grep -c 
+ACACTCTTTCCCTACACGACGCTCTTCCGATCT
+0
 
 ```
+  
+As expected, the read 1 adapter sequence was only found in the read 1 files, and the read 2 adapter sequence was only found in the read 2 files. The reverse complements of both adapter sequences were not found in any of the files. Therefore, the adapter sequences that I expect are present in the files that I would expect to find them in.  
+I then did the following commands to check that the adapter sequences were at the 3' ends of the reads as expected:
+```{r, eval=F, echo=T}
+(base) [sgrindst@n225 demultiplexed]$ zcat 27_4C_mbnl_S19_L008_R1_001.fastq.gz | grep  
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA | head
+GNCAGCAGATTTTCAATTGCACCTTTCTGATTTTGAAAAGCCTCTTCTAAAAACTGATAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTGGTA
+GCCTCATCATCACTGACTTCCTTATCTCGTTCCTTCTCCACAAAGAGAGAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTGGTATCTCGTATG
+GAAACATTTAATTTTGCATTCCAAACTCTAGCATCATGATTTTCATGTGAGCTTAATGCAAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTGG
+CTTGTTTGGTATGGAATAGGAAGTTGACCGTAGTTCCCACATTCTCTGAGAATCCCTCCCAGAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGT
+CTCGTAGCATCTGGCAAGACATTGCCTGATATCATGATGGACTTGGACGGGTAAAGCAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTGGTAT
+CCTTGGTAGGTTCCTTCACGAATTACGTCTCGTCATCATTGATATATTGTGAGGATATTGGAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTG
+CTTTCTTCAACTTCTTGTTCTCTTCCCACACTCTGTTCTCAGCCTCCTCCGCTCCCCTCCGCCAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCG
+GGAGCCGGGAGGACCAGGGGAGCCAGGGGGACCAGGAGGGCCCATGGGACCATCAACAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTGGTAT
+AGAGGCCACGCGACCGTGTCAGGCAGTCTGGGATGCAGGCAGGCCGCAAGGAGAAGCAGAGAGATCGGAAGAGCACACGTCTGAACTCCAGTCACATCGTG
+AGATATTTGAAATGGCGTCAAGAATAACCTGAATAATCTTGGTATCTTTTGCACTCAGGAGGTTCAGATCGGAAGAGCACACGTCTGAACTCCAGTCACAT
+```
+  
+The adapters are toward the 3' end of the reads, as expected. I did the same for the read 2 file with the r2 adapter sequence and got the same results.  
   
 The following bash script was submitted to Talapas to run cutadapt:
 ```{bash, comment=NA}
